@@ -126,7 +126,7 @@ describe('calculerTableauAmortissement', () => {
     expect(tableau.length).toBe(0);
   });
 
-  test('linear amortization type', () => {
+  test('linear amortization: fixed capital, decreasing mensualité', () => {
     const financement: Financement = {
       id: 'test',
       nom: 'Test',
@@ -140,13 +140,45 @@ describe('calculerTableauAmortissement', () => {
       fraisGarantie: 0,
     };
     const tableau = calculerTableauAmortissement(financement);
-    // In linear amortization, mensualité is constant = capital / duration
-    const mensualiteAttendeur = 200000 / 240; // ~833.33
-    for (let i = 0; i < 10; i++) {
-      expect(tableau[i].mensualite).toBeCloseTo(mensualiteAttendeur, 1);
+    const partCapitalFixe = 200000 / 240; // ~833.33
+
+    // Part capital is constant throughout
+    for (let i = 0; i < tableau.length; i++) {
+      expect(tableau[i].partCapital).toBeCloseTo(partCapitalFixe, 1);
     }
-    // Capital repayment decreases as interest decreases (since mensualité - intérêts = capital repay)
-    expect(tableau[0].partCapital).toBeLessThan(tableau[239].partCapital);
+
+    // Mensualité decreases over time (capital fixe + intérêts décroissants)
+    expect(tableau[0].mensualite).toBeGreaterThan(tableau[239].mensualite);
+
+    // First mensualité = capital + intérêts sur capital total
+    const premieresInterets = 200000 * (0.035 / 12);
+    expect(tableau[0].mensualite).toBeCloseTo(partCapitalFixe + premieresInterets, 1);
+
+    // Last mensualité ≈ capital fixe + tiny residual interest
+    expect(tableau[239].mensualite).toBeLessThan(partCapitalFixe + 5);
+
+    // Capital restant at end is ~0
+    expect(tableau[239].capitalRestant).toBeLessThan(1);
+  });
+
+  test('linear amortization produces less total interest than constant', () => {
+    const base = {
+      id: 'test',
+      nom: 'Test',
+      montantPret: 200000,
+      tauxInteret: 0.035,
+      dureeMois: 240,
+      differeMois: 0,
+      assuranceEmprunteurMensuelle: 0,
+      fraisDossier: 0,
+      fraisGarantie: 0,
+    };
+
+    const resConstant = calculerResultatsFinancement({ ...base, typeAmortissement: 'constant' });
+    const resLineaire = calculerResultatsFinancement({ ...base, typeAmortissement: 'lineaire' });
+
+    // Linear repays capital faster → less total interest
+    expect(resLineaire.coutTotalInterets).toBeLessThan(resConstant.coutTotalInterets);
   });
 });
 

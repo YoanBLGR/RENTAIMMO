@@ -67,15 +67,6 @@ export function calculerTableauAmortissement(
   }
 
   const tauxMensuel = tauxInteret / 12;
-
-  // Calculate the actual monthly payment (without assurance)
-  let mensualite = calculerMensualitePret(montantPret, tauxInteret, dureeMois);
-
-  // If amortization is linear, adjust the monthly payment
-  if (typeAmortissement === 'lineaire') {
-    mensualite = montantPret / dureeMois;
-  }
-
   let capitalRestant = montantPret;
 
   // Différé period (interest-only)
@@ -93,29 +84,47 @@ export function calculerTableauAmortissement(
 
   // Regular amortization period
   const dureePropre = dureeMois - differeMois;
-  if (typeAmortissement === 'constant' && dureePropre > 0) {
-    // Recalculate mensualité after différé period on remaining capital
-    mensualite = calculerMensualitePret(capitalRestant, tauxInteret, dureePropre);
-  }
 
-  for (let mois = differeMois + 1; mois <= dureeMois; mois++) {
-    const interets = capitalRestant * tauxMensuel;
-    const partCapital = mensualite - interets;
-    capitalRestant -= partCapital;
+  if (typeAmortissement === 'lineaire' && dureePropre > 0) {
+    // Linéaire: capital fixe chaque mois, intérêts décroissants
+    const partCapitalFixe = capitalRestant / dureePropre;
 
-    // Avoid negative capital due to rounding
-    if (capitalRestant < 0.01) {
-      capitalRestant = 0;
+    for (let mois = differeMois + 1; mois <= dureeMois; mois++) {
+      const interets = capitalRestant * tauxMensuel;
+      const mensualite = partCapitalFixe + interets;
+      capitalRestant -= partCapitalFixe;
+
+      if (capitalRestant < 0.01) capitalRestant = 0;
+
+      tableau.push({
+        mois,
+        capitalRestant,
+        mensualite,
+        partCapital: partCapitalFixe,
+        partInterets: interets,
+        assurance: financement.assuranceEmprunteurMensuelle,
+      });
     }
+  } else if (dureePropre > 0) {
+    // Constant (annuités constantes): mensualité fixe
+    const mensualite = calculerMensualitePret(capitalRestant, tauxInteret, dureePropre);
 
-    tableau.push({
-      mois,
-      capitalRestant,
-      mensualite,
-      partCapital,
-      partInterets: interets,
-      assurance: financement.assuranceEmprunteurMensuelle,
-    });
+    for (let mois = differeMois + 1; mois <= dureeMois; mois++) {
+      const interets = capitalRestant * tauxMensuel;
+      const partCapital = mensualite - interets;
+      capitalRestant -= partCapital;
+
+      if (capitalRestant < 0.01) capitalRestant = 0;
+
+      tableau.push({
+        mois,
+        capitalRestant,
+        mensualite,
+        partCapital,
+        partInterets: interets,
+        assurance: financement.assuranceEmprunteurMensuelle,
+      });
+    }
   }
 
   return tableau;
@@ -140,8 +149,9 @@ export function calculerResultatsFinancement(
     };
   }
 
-  const mensualiteHorsAssurance =
-    tableau.length > 0 ? tableau[0].mensualite : 0;
+  // For linéaire, mensualité varies — use first regular payment (after différé)
+  const premiereLigneAmortissement = tableau.find(l => l.partCapital > 0) ?? tableau[0];
+  const mensualiteHorsAssurance = premiereLigneAmortissement.mensualite;
   const mensualiteAvecAssurance =
     mensualiteHorsAssurance + financement.assuranceEmprunteurMensuelle;
 
