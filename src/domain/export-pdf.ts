@@ -500,7 +500,8 @@ function addScenarioSection(
     body: [
       ['Rendement brut', fmtPct(resultats.rendementBrut)],
       ['Rendement net', fmtPct(resultats.rendementNet)],
-      ['Rendement net/net (sur apport)', fmtPct(resultats.rendementNetNet)],
+      ['Rendement net-net', fmtPct(resultats.rendementNetNet)],
+      ['Cash-on-cash (sur apport)', fmtPct(resultats.cashOnCash)],
     ],
     theme: 'grid',
     styles: { fontSize: 9, cellPadding: 4, textColor: COLORS.primary },
@@ -612,7 +613,8 @@ function addComparaisonPage(
     ['Cash-flow mensuel', ...resultatsAll.map((r) => fmtEur(r.cashFlowMensuelAvantImpot))],
     ['Rendement brut', ...resultatsAll.map((r) => fmtPct(r.rendementBrut))],
     ['Rendement net', ...resultatsAll.map((r) => fmtPct(r.rendementNet))],
-    ['Rendement net/net', ...resultatsAll.map((r) => fmtPct(r.rendementNetNet))],
+    ['Rendement net-net', ...resultatsAll.map((r) => fmtPct(r.rendementNetNet))],
+    ['Cash-on-cash', ...resultatsAll.map((r) => fmtPct(r.cashOnCash))],
   ];
 
   autoTable(doc, {

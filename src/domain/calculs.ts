@@ -373,7 +373,11 @@ export function calculerResultatsScenario(scenario: Scenario): ResultatsScenario
     ? (revenuNetExploitation / investissementTotal) * 100
     : 0;
 
-  const rendementNetNet = apportTotal > 0
+  const rendementNetNet = investissementTotal > 0
+    ? (cashFlowAnnuelAvantImpot / investissementTotal) * 100
+    : 0;
+
+  const cashOnCash = apportTotal > 0
     ? (cashFlowAnnuelAvantImpot / apportTotal) * 100
     : 0;
 
@@ -397,6 +401,7 @@ export function calculerResultatsScenario(scenario: Scenario): ResultatsScenario
     rendementBrut,
     rendementNet,
     rendementNetNet,
+    cashOnCash,
     alertes: [], // Populated by validation
   };
 }

@@ -512,66 +512,102 @@ export default function SimulationPage({
 
         {/* Sidebar - Résultats Summary (Desktop only) */}
         {resultats && (
-          <div className="hidden lg:block lg:w-80 lg:sticky lg:top-6 lg:h-fit">
-            <Card className="border-primary/20 bg-primary/5">
-              <CardHeader>
-                <CardTitle className="text-lg">Résumé</CardTitle>
+          <div className="hidden lg:block lg:w-80 lg:sticky lg:top-6 lg:h-fit space-y-4">
+            {/* Cash-flow hero */}
+            <Card className={`border-2 ${
+              resultats.cashFlowMensuelAvantImpot >= 0
+                ? 'border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950'
+                : 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950'
+            }`}>
+              <CardContent className="pt-5 pb-4 text-center">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Cash-flow mensuel</p>
+                <p className={`text-3xl font-bold ${
+                  resultats.cashFlowMensuelAvantImpot >= 0
+                    ? 'text-green-700 dark:text-green-400'
+                    : 'text-red-700 dark:text-red-400'
+                }`}>
+                  {resultats.cashFlowMensuelAvantImpot >= 0 ? '+' : ''}{formatNumber(resultats.cashFlowMensuelAvantImpot)} €
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  soit {resultats.cashFlowAnnuelAvantImpot >= 0 ? '+' : ''}{formatNumber(resultats.cashFlowAnnuelAvantImpot)} €/an avant impôts
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Rendements */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Rendements</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 text-sm">
+              <CardContent className="grid grid-cols-3 gap-3 text-center">
                 <div>
-                  <p className="text-muted-foreground">Investissement</p>
-                  <p className="font-bold text-lg">
-                    {formatNumber(resultats.investissementTotal)} €
-                  </p>
+                  <p className="text-xs text-muted-foreground">Brut</p>
+                  <p className="text-lg font-bold">{resultats.rendementBrut.toFixed(2)}%</p>
                 </div>
-                <div className="pt-2 border-t">
-                  <p className="text-muted-foreground">Revenus annuels</p>
-                  <p className="font-bold text-lg">
-                    {formatNumber(resultats.revenuBrutAnnuel)} €
-                  </p>
+                <div>
+                  <p className="text-xs text-muted-foreground">Net</p>
+                  <p className="text-lg font-bold">{resultats.rendementNet.toFixed(2)}%</p>
                 </div>
-                <div className="pt-2 border-t">
-                  <p className="text-muted-foreground">Charges annuelles</p>
-                  <p className="font-bold text-lg">
-                    {formatNumber(resultats.chargesExploitationAnnuelles)} €
-                  </p>
+                <div>
+                  <p className="text-xs text-muted-foreground">Net-net</p>
+                  <p className="text-lg font-bold">{resultats.rendementNetNet.toFixed(2)}%</p>
                 </div>
-                <div className="pt-2 border-t">
-                  <p className="text-muted-foreground">Financement mensuel</p>
-                  <p className="font-bold text-lg">
-                    {formatNumber(resultats.chargeFinancementMensuelle)} €
-                  </p>
+              </CardContent>
+            </Card>
+
+            {/* Flux financiers */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Flux financiers</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Revenus bruts</span>
+                  <span className="font-semibold">{formatNumber(resultats.revenuBrutAnnuel)} €/an</span>
                 </div>
-                <div className="pt-2 border-t">
-                  <p className="text-muted-foreground">Cash-flow mensuel</p>
-                  <p className={`font-bold text-lg ${
-                    resultats.cashFlowMensuelAvantImpot >= 0
-                      ? 'text-green-600'
-                      : 'text-red-600'
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Charges</span>
+                  <span className="font-semibold text-orange-600">-{formatNumber(resultats.chargesExploitationAnnuelles)} €/an</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Crédit</span>
+                  <span className="font-semibold text-orange-600">-{formatNumber(resultats.chargeFinancementAnnuelle)} €/an</span>
+                </div>
+                <div className="border-t pt-2 flex justify-between">
+                  <span className="text-muted-foreground font-medium">Cash-flow</span>
+                  <span className={`font-bold ${
+                    resultats.cashFlowAnnuelAvantImpot >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {formatNumber(resultats.cashFlowMensuelAvantImpot)} €
-                  </p>
+                    {resultats.cashFlowAnnuelAvantImpot >= 0 ? '+' : ''}{formatNumber(resultats.cashFlowAnnuelAvantImpot)} €/an
+                  </span>
                 </div>
-                <div className="pt-2 border-t space-y-2">
-                  <div>
-                    <p className="text-muted-foreground text-xs">Rendement brut</p>
-                    <p className="font-bold">
-                      {resultats.rendementBrut.toFixed(2)} %
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Rendement net</p>
-                    <p className="font-bold">
-                      {resultats.rendementNet.toFixed(2)} %
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Rendement net/net</p>
-                    <p className="font-bold">
-                      {resultats.rendementNetNet.toFixed(2)} %
-                    </p>
-                  </div>
+              </CardContent>
+            </Card>
+
+            {/* Investissement */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Investissement</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Total</span>
+                  <span className="font-bold text-lg">{formatNumber(resultats.investissementTotal)} €</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Apport</span>
+                  <span className="font-semibold">{formatNumber(resultats.apportTotal)} €</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Mensualité crédit</span>
+                  <span className="font-semibold">{formatNumber(resultats.chargeFinancementMensuelle)} €</span>
+                </div>
+                {resultats.cashOnCash !== 0 && (
+                  <div className="border-t pt-2 flex justify-between">
+                    <span className="text-muted-foreground text-xs">Cash-on-cash</span>
+                    <span className="font-semibold text-xs">{resultats.cashOnCash.toFixed(2)}%</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

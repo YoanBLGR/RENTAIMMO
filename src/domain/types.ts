@@ -163,7 +163,8 @@ export interface ResultatsScenario {
   // Rendements
   rendementBrut: number; // revenus bruts / investissement total
   rendementNet: number; // (revenus - charges exploitation) / investissement total
-  rendementNetNet: number; // (revenus - charges - financement) / apport
+  rendementNetNet: number; // (revenus - charges - financement) / investissement total
+  cashOnCash: number; // cash-flow / apport personnel (retour sur fonds propres)
 
   // Alertes
   alertes: AlerteMetier[];
