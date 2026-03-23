@@ -11,9 +11,9 @@ import { calculerResultatsScenario } from './calculs';
 // ===== FORMATTING (standalone, no dependency on lib/format) =====
 
 function fmt(value: number): string {
-  return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(
-    Math.round(value)
-  );
+  return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
+    .format(Math.round(value))
+    .replace(/[\u202F\u00A0]/g, ' ');
 }
 
 function fmtEur(value: number): string {
