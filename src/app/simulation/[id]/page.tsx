@@ -37,6 +37,7 @@ import FinancementForm from '@/components/simulation/financement-form';
 import ChargesForm from '@/components/simulation/charges-form';
 import HypothesesForm from '@/components/simulation/hypotheses-form';
 import { Plus, Copy, Trash2 } from 'lucide-react';
+import ExportButton from '@/components/simulation/export-button';
 
 function formatNumber(num: number): string {
   return new Intl.NumberFormat('fr-FR').format(Math.round(num));
@@ -134,6 +135,7 @@ export default function SimulationPage({
                 </p>
               )}
             </div>
+            <ExportButton simulation={simulation} />
           </div>
         </div>
       </div>
