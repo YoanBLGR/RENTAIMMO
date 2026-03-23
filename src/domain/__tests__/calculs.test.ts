@@ -205,11 +205,12 @@ describe('calculerRevenusLot - Longue Durée', () => {
 });
 
 describe('calculerRevenusLot - Courte Durée', () => {
-  test('calculates CD revenues correctly', () => {
+  test('calculates CD revenues with durée séjour = 2 nuits', () => {
     const lot: Lot = {
       ...creerLotVide(),
       tarifNuiteeCD: 80,
       tauxOccupationCD: 0.65,
+      dureeMoyenneSejourCD: 2,
       chargesMenageParNuitee: 15,
       chargesLingeParNuitee: 5,
       chargesConsommablesParNuitee: 3,
@@ -217,12 +218,53 @@ describe('calculerRevenusLot - Courte Durée', () => {
     };
     const result = calculerRevenusLot(lot, 'courte_duree', 0);
     const nuitees = 365 * 0.65; // 237.25
+    const rotations = nuitees / 2; // 118.625
     const expectedRevenu = 80 * nuitees; // 18980
     expect(result.revenuBrutAnnuel).toBeCloseTo(expectedRevenu, 0);
 
-    // Charges: nuitées * (15+5+3) + revenu * 0.15
-    const expectedCharges = nuitees * 23 + expectedRevenu * 0.15;
+    // Ménage par rotation, linge+consommables par nuitée
+    const expectedCharges = rotations * 15 + nuitees * (5 + 3) + expectedRevenu * 0.15;
     expect(result.chargesExploitationLotAnnuel).toBeCloseTo(expectedCharges, 0);
+  });
+
+  test('durée séjour = 1 nuit gives ménage per night', () => {
+    const lot: Lot = {
+      ...creerLotVide(),
+      tarifNuiteeCD: 80,
+      tauxOccupationCD: 0.65,
+      dureeMoyenneSejourCD: 1,
+      chargesMenageParNuitee: 15,
+      chargesLingeParNuitee: 5,
+      chargesConsommablesParNuitee: 3,
+      commissionPlateformeCD: 0.15,
+    };
+    const result = calculerRevenusLot(lot, 'courte_duree', 0);
+    const nuitees = 365 * 0.65;
+    // With 1 night per stay, rotations = nuitees → ménage same as old formula
+    const expectedCharges = nuitees * 15 + nuitees * (5 + 3) + (80 * nuitees) * 0.15;
+    expect(result.chargesExploitationLotAnnuel).toBeCloseTo(expectedCharges, 0);
+  });
+
+  test('longer séjour reduces ménage costs significantly', () => {
+    const baseLot: Lot = {
+      ...creerLotVide(),
+      tarifNuiteeCD: 80,
+      tauxOccupationCD: 0.65,
+      chargesMenageParNuitee: 20,
+      chargesLingeParNuitee: 5,
+      chargesConsommablesParNuitee: 3,
+      commissionPlateformeCD: 0.15,
+    };
+    const lot1Nuit = { ...baseLot, dureeMoyenneSejourCD: 1 };
+    const lot3Nuits = { ...baseLot, dureeMoyenneSejourCD: 3 };
+
+    const r1 = calculerRevenusLot(lot1Nuit, 'courte_duree', 0);
+    const r3 = calculerRevenusLot(lot3Nuits, 'courte_duree', 0);
+
+    // Revenue unchanged
+    expect(r1.revenuBrutAnnuel).toBeCloseTo(r3.revenuBrutAnnuel, 0);
+    // But charges are lower with longer stays (less ménage)
+    expect(r3.chargesExploitationLotAnnuel).toBeLessThan(r1.chargesExploitationLotAnnuel);
   });
 
   test('CD with 0% occupation', () => {
@@ -230,6 +272,7 @@ describe('calculerRevenusLot - Courte Durée', () => {
       ...creerLotVide(),
       tarifNuiteeCD: 80,
       tauxOccupationCD: 0,
+      dureeMoyenneSejourCD: 2,
       chargesMenageParNuitee: 15,
       chargesLingeParNuitee: 5,
       chargesConsommablesParNuitee: 3,
@@ -245,6 +288,7 @@ describe('calculerRevenusLot - Courte Durée', () => {
       ...creerLotVide(),
       tarifNuiteeCD: 100,
       tauxOccupationCD: 1.0,
+      dureeMoyenneSejourCD: 2,
       chargesMenageParNuitee: 20,
       chargesLingeParNuitee: 5,
       chargesConsommablesParNuitee: 3,
@@ -254,8 +298,9 @@ describe('calculerRevenusLot - Courte Durée', () => {
     const expectedRevenu = 100 * 365; // 36500
     expect(result.revenuBrutAnnuel).toBeCloseTo(expectedRevenu, 0);
 
-    // Charges: 365 * 28 + 36500 * 0.1 = 10220 + 3650 = 13870
-    const expectedCharges = 365 * 28 + expectedRevenu * 0.1;
+    // rotations = 365/2 = 182.5
+    // Charges: 182.5 * 20 + 365 * 8 + 36500 * 0.1 = 3650 + 2920 + 3650 = 10220
+    const expectedCharges = (365 / 2) * 20 + 365 * 8 + expectedRevenu * 0.1;
     expect(result.chargesExploitationLotAnnuel).toBeCloseTo(expectedCharges, 0);
   });
 });

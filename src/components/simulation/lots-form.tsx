@@ -205,7 +205,7 @@ export default function LotsForm({ scenario, onUpdate }: LotsFormProps) {
               {isCD && (
                 <div className="space-y-4">
                   <h4 className="font-medium text-sm">Courte durée</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor={`lot-tarif-${lot.id}`}>Tarif nuitée (€)</Label>
                       <Input
@@ -214,6 +214,20 @@ export default function LotsForm({ scenario, onUpdate }: LotsFormProps) {
                         value={lot.tarifNuiteeCD}
                         onChange={(e) => handleLotUpdate({ ...lot, tarifNuiteeCD: parseNumber(e.target.value) })}
                         placeholder="80"
+                        className="pr-8"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor={`lot-duree-sejour-${lot.id}`}>Durée moy. séjour (nuits)</Label>
+                      <Input
+                        id={`lot-duree-sejour-${lot.id}`}
+                        type="number"
+                        min={1}
+                        step={0.5}
+                        value={lot.dureeMoyenneSejourCD}
+                        onChange={(e) => handleLotUpdate({ ...lot, dureeMoyenneSejourCD: Math.max(1, parseNumber(e.target.value)) })}
+                        placeholder="2"
                         className="pr-8"
                       />
                     </div>
@@ -242,11 +256,11 @@ export default function LotsForm({ scenario, onUpdate }: LotsFormProps) {
                   <Separator />
 
                   <div className="space-y-3">
-                    <h5 className="text-sm font-medium">Charges par nuitée</h5>
+                    <h5 className="text-sm font-medium">Charges variables</h5>
                     <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
                         <Label className="text-xs" htmlFor={`lot-menage-${lot.id}`}>
-                          Ménage (€)
+                          Ménage / séjour (€)
                         </Label>
                         <Input
                           id={`lot-menage-${lot.id}`}

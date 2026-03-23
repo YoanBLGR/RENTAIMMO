@@ -191,14 +191,18 @@ export function calculerRevenusLot(
     const nuitees = 365 * lot.tauxOccupationCD;
     revenuBrutAnnuel = lot.tarifNuiteeCD * nuitees;
 
-    // CD charges: ménage + linge + consommables + commission plateforme
-    const chargesVariablesParNuitee =
-      lot.chargesMenageParNuitee +
-      lot.chargesLingeParNuitee +
-      lot.chargesConsommablesParNuitee;
+    // Nombre de rotations (séjours) = nuitées / durée moyenne séjour
+    const dureeSejour = Math.max(lot.dureeMoyenneSejourCD || 1, 1);
+    const rotations = nuitees / dureeSejour;
+
+    // Ménage = par rotation (1 ménage par séjour, pas par nuit)
+    // Linge & consommables = par nuitée (usage quotidien)
+    const chargesMenageAnnuelles = rotations * lot.chargesMenageParNuitee;
+    const chargesNuiteesAnnuelles = nuitees * (lot.chargesLingeParNuitee + lot.chargesConsommablesParNuitee);
 
     chargesExploitationLot =
-      nuitees * chargesVariablesParNuitee +
+      chargesMenageAnnuelles +
+      chargesNuiteesAnnuelles +
       revenuBrutAnnuel * lot.commissionPlateformeCD;
   }
 

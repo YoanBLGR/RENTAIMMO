@@ -15,7 +15,8 @@ export interface Lot {
   // Courte durée
   tarifNuiteeCD: number; // prix moyen par nuit
   tauxOccupationCD: number; // 0-1, taux d'occupation moyen annuel
-  chargesMenageParNuitee: number; // ménage par rotation
+  dureeMoyenneSejourCD: number; // durée moyenne d'un séjour en nuits (ex: 2.5)
+  chargesMenageParNuitee: number; // ménage par rotation (facturé par séjour, pas par nuit)
   chargesLingeParNuitee: number;
   chargesConsommablesParNuitee: number;
   commissionPlateformeCD: number; // % commission (ex: 0.15 pour 15%)

@@ -70,6 +70,7 @@ export function creerLotVide(): Lot {
     // Courte durée
     tarifNuiteeCD: 80,
     tauxOccupationCD: DEFAULTS.tauxOccupationCD,
+    dureeMoyenneSejourCD: 2,
     chargesMenageParNuitee: 15,
     chargesLingeParNuitee: 5,
     chargesConsommablesParNuitee: 3,
